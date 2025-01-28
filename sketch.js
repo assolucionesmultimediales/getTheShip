@@ -15,10 +15,14 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   frameRate(60); // uso los 60 frames para que sea fluido y no todo tosco
 
+  // inicializo los puntos desde el local storage (si no existe, comienza en 0)
+  puntos = getItem('score') || 0;
+
   // defino el tamaño del enemigo según la imagen original
   enemigoWidth = enemigo.width;
   enemigoHeight = enemigo.height;
-// posicion aleatoria del enemigo
+
+  // posicion aleatoria del enemigo
   enemigoX = random(windowWidth - enemigoWidth);
   enemigoY = random(windowHeight - enemigoHeight);
 }
@@ -45,7 +49,7 @@ function draw() {
   text("Puntos: " + puntos, 20, 40);
 }
 
-// si se hace clic en el enemigo se tiene que sumar un punto y debo considerar el ancho y el alto del enemigo porque si no, no es correcta la puntiacion
+// si se hace clic en el enemigo se tiene que sumar un punto y debo considerar el ancho y el alto del enemigo porque si no, no es correcta la puntuacion
 function mousePressed() {
   if (
     mouseX > enemigoX &&
@@ -53,7 +57,8 @@ function mousePressed() {
     mouseY > enemigoY &&
     mouseY < enemigoY + enemigoHeight 
   ) {
-    puntos++;
+    puntos++; // incremento los puntos
+    storeItem('score', puntos); // guardo los puntos en el local storage
     console.log(puntos);
   }
 }
