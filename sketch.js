@@ -42,16 +42,14 @@ function draw() {
 
   // si el cartel está visible, lo muestro
   if (cartelVisible) {
-    // dibujamos un fondo para el cartel
-    fill(0); // fondo con algo de transparencia
-    noStroke(); // sin borde
-    rect(width / 4, height / 3, width / 2, height / 5, 20); // rectángulo redondeado
 
-    // dibujamos el texto dentro del fondo
+
+    //el texto del fondo
     fill(255); // texto blanco
     textSize(48);
     textAlign(CENTER, CENTER);
-    text("¡bienvenido a get the ship! tenes 30 segundos para agarrar la nave 10 veces, suerte!", width / 2, height / 3 + 30);
+    text("Bienvenido a get the ship", width / 2, height / 3 + 30);
+    text("tenes 30 segundos para agarrar la nave 10 veces", width / 2, height / 3 + 120);
     textSize(32);
     text("clic para empezar", width / 2, height / 2 + 30);
 
