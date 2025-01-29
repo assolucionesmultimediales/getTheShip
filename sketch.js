@@ -12,6 +12,7 @@ let cartelVisible = true; // variable para mostrar u ocultar el cartel
 let resultadoJuego = ''; // para guardar si el jugador ganó o perdió
 let mostrarMensajeFinal = false; // controlamos cuando mostrar el mensaje final
 
+// función para precargar las imágenes
 function preload() {
   nave = loadImage('/assets/nave1.png');
   enemigo = loadImage('/assets/nave2.png');
@@ -50,7 +51,7 @@ function draw() {
     return; // detengo el dibujado del resto del juego mientras se muestra el cartel
   }
 
-  // verifico si pasaron 2 segundos para cambiar la posición del enemigo porque si no, automaticamente el linzo se actualiza por segundo
+  // verifico si pasaron 2 segundos para cambiar la posición del enemigo porque si no, automaticamente el lienzo se actualiza por segundo
   if (millis() - lastChangeTime > changeInterval && juegoActivo) {
     enemigoX = random(windowWidth - enemigoWidth); // doy nueva posicion
     enemigoY = random(windowHeight - enemigoHeight); 
@@ -89,7 +90,15 @@ function draw() {
     mostrarMensajeFinal = true;
   }
 
-  // mostrar el mensaje de fin de juego si el tiempo se agotó
+  // reviso si el jugador ganó antes de que termine el tiempo
+  if (puntos >= 10 && juegoActivo) {
+    juegoActivo = false;  // Detener el juego si se alcanzan los puntos
+    resultadoJuego = 'Ganaste';
+    storeItem('resultado', resultadoJuego);
+    mostrarMensajeFinal = true;  // Activa el mensaje final
+  }
+
+  // mostrar el mensaje de fin de juego si el tiempo se agotó o si el jugador ganó
   if (mostrarMensajeFinal) {
     fill(255);
     textSize(48);
