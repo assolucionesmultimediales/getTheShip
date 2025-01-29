@@ -45,9 +45,9 @@ function draw() {
     fill(255);
     textSize(48);
     textAlign(CENTER, CENTER);
-    text("¡Bienvenido al juego!", width / 2, height / 3);
+    text("¡Bienvenido a Get the Ship! Tenes 30 segundos para agarrar la nave 10 veces, suerte", width / 2, height / 3);
     textSize(32);
-    text("Haz clic para empezar", width / 2, height / 2);
+    text("Clic para empezar", width / 2, height / 2);
     return; // detengo el dibujado del resto del juego mientras se muestra el cartel
   }
 
