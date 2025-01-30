@@ -1,5 +1,6 @@
 let nave;
 let enemigo;
+let punio;
 let enemigoX, enemigoY; // posición del enemigo
 let lastChangeTime = 0; // último tiempo en que el enemigo cambió de posición
 let changeInterval = 500; // intervalo de tiempo para que el enemigo cambie de lugar
@@ -11,22 +12,21 @@ let juegoActivo = false; // estado del juego
 let cartelVisible = true; // variable para mostrar u ocultar el cartel
 let resultadoJuego = ''; // para saber si ganaste o perdiste
 let mostrarMensajeFinal = false; // control para mostrar el mensaje final
+let golpeado = false; // variable para verificar si el enemigo fue golpeado
 
 // cargamos las imágenes
 function preload() {
   nave = loadImage('/assets/nave1.png');
   enemigo = loadImage('/assets/nave2.png');
+  punio = loadImage('/assets/golpe.png');
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  frameRate(60); // para que no sea todo tosco y sea fluido
+  frameRate(30); // para que no sea todo tosco y sea fluido
 
   // cargo el resultado guardado en el localStorage
   resultadoJuego = getItem('resultado') || '';
-
-  // inicializo los puntos desde el local storage
-  puntos = 0;
 
   // defino el tamaño del enemigo para poder calcular bien los puntos
   enemigoWidth = enemigo.width;
@@ -42,8 +42,6 @@ function draw() {
 
   // si el cartel está visible, lo muestro
   if (cartelVisible) {
-
-
     //el texto del fondo
     fill(255); // texto blanco
     textSize(48);
@@ -60,7 +58,7 @@ function draw() {
   if (millis() - lastChangeTime > changeInterval && juegoActivo) {
     enemigoX = random(windowWidth - enemigoWidth);
     enemigoY = random(windowHeight - enemigoHeight);
-    lastChangeTime = millis(); // actualizo el tiempo
+    lastChangeTime = millis(); // actualizo el tiempo, esto es por que la funcion de manera automatica se reinicia 60 veces en un segundo
   }
 
   // dibujo el enemigo
@@ -77,8 +75,12 @@ function draw() {
 
   // muestro el tiempo restante
   textAlign(RIGHT);
-  let tiempoRestante = tiempoLimite - (millis() - tiempoInicio);
-  text("tiempo: " + Math.max(0, Math.floor(tiempoRestante / 1000)), width - 150, 40);
+  if (juegoActivo) { // solo se calcula el tiempo si el juego está activo
+    let tiempoRestante = tiempoLimite - (millis() - tiempoInicio);
+    text("tiempo: " + Math.max(0, Math.floor(tiempoRestante / 1000)), width - 150, 40);
+  } else {
+    text("tiempo: 0", width - 150, 40); // cuando el juego no está activo, el tiempo se muestra como 0
+  }
 
   // si el tiempo se agotó, termino el juego
   if (juegoActivo && millis() - tiempoInicio > tiempoLimite) {
@@ -99,6 +101,8 @@ function draw() {
     resultadoJuego = 'ganaste';
     storeItem('resultado', resultadoJuego);
     mostrarMensajeFinal = true;
+    // seteo el tiempo restante a 0 cuando el jugador gana antes de que se termine el tiempo
+    let tiempoRestante = 0;
   }
 
   // mostrar el mensaje de fin de juego si ya se terminó
@@ -113,6 +117,12 @@ function draw() {
     textSize(24);
     text("haz clic para continuar", width / 2, height / 1.5);
   }
+
+  // si el enemigo fue golpeado, mostrar la imagen de golpe
+  if (golpeado) {
+    image(punio, enemigoX, enemigoY,200,200); // muestra la imagen del golpe en lugar del enemigo
+    golpeado = false; // resetear el golpe para la siguiente vez
+  }
 }
 
 // si se hace clic sobre el enemigo, se suman puntos
@@ -125,6 +135,7 @@ function mousePressed() {
       mouseY < enemigoY + enemigoHeight 
     ) {
       puntos++; // sumo puntos
+      golpeado = true; // marcar que el enemigo fue golpeado
     }
   }
 
