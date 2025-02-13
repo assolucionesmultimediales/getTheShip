@@ -16,12 +16,15 @@ let golpeado = false; // variable para verificar si el enemigo fue golpeado
 //variables para las estrellas
 let lineXone = 0;
 let lineYone = 0;
-
+let sonidoAmbiente;
+let laser;
 // cargamos las imágenes
 function preload() {
   nave = loadImage('/assets/nave1.png');
   enemigo = loadImage('/assets/nave2.png');
   punio = loadImage('/assets/golpe.png');
+  sonidoAmbiente = loadSound('/assets/sonidoAmbiente.mp3')
+  laser = loadSound('/assets/laser.mp3')
 }
 
 function setup() {
@@ -40,15 +43,14 @@ function setup() {
 
 function draw() {
   background(0);
+  stroke("white");
+  strokeWeight(10);
+  point(lineXone, lineYone);
+  lineXone = random(0, windowWidth);
+  lineYone = random(0, windowHeight);
 
   // pantalla de bienvenida
   if (cartelVisible) {
-    stroke("white");
-    strokeWeight(10);
-    point(lineXone, lineYone);
-    lineXone = random(0, windowWidth);
-    lineYone = random(0, windowHeight);
-
     strokeWeight(2);
     fill(255);
     textSize(48);
@@ -61,6 +63,13 @@ function draw() {
     return; // no sigue ejecutando el código después de mostrar el cartel
   }
 
+  if (juegoActivo) {
+    if (!sonidoAmbiente.isPlaying()) {
+      sonidoAmbiente.loop(); // Usa loop() para que se repita sin interrupciones
+    }
+  } else {
+    sonidoAmbiente.stop();
+  }
   // actualiza la posición del enemigo cada cierto tiempo
   if (millis() - lastChangeTime > changeInterval && juegoActivo) {
     enemigoX = random(windowWidth - enemigoWidth);
@@ -73,6 +82,7 @@ function draw() {
   image(nave, pmouseX, pmouseY, 120, 190);
 
   // muestro la cantidad de puntos
+  strokeWeight(1)
   fill(255);
   textSize(32);
   textAlign(LEFT);
@@ -82,6 +92,7 @@ function draw() {
   textAlign(RIGHT);
   if (juegoActivo) {
     let tiempoRestante = tiempoLimite - (millis() - tiempoInicio);
+    strokeWeight(1)
     fill("pink");
     rect(width - 325, 30, 200, 50); // fondo para el tiempo
     fill("white");
@@ -127,21 +138,20 @@ function draw() {
   if (golpeado) {
     image(punio, enemigoX, enemigoY, 200, 200);
     golpeado = false; // reseteo el golpe para que no quede la imagen fija
+    laser.play()
   }
 }
 
 // cuando el jugador hace clic en la nave enemiga, suma un punto
 function mousePressed() {
-  if (juegoActivo) {
-    if (
-      mouseX > enemigoX &&
-      mouseX < enemigoX + enemigoWidth && 
-      mouseY > enemigoY &&
-      mouseY < enemigoY + enemigoHeight 
-    ) {
-      puntos++;
-      golpeado = true; // activo el golpe para que se muestre la imagen del puño
-    }
+  if (
+    mouseX > enemigoX &&  // El clic está a la derecha del borde izquierdo del enemigo
+    mouseX < enemigoX + enemigoWidth &&  // El clic está a la izquierda del borde derecho del enemigo
+    mouseY > enemigoY &&  // El clic está debajo del borde superior del enemigo
+    mouseY < enemigoY + enemigoHeight  // El clic está encima del borde inferior del enemigo
+  ) {
+    puntos++; // Aumenta el contador de puntos porque el jugador hizo clic en el enemigo
+    golpeado = true; // Activa la variable "golpeado" para mostrar la imagen del puño en la posición del enemigo
   }
 
   // si el juego terminó, al hacer clic se reinicia
