@@ -13,18 +13,46 @@ let cartelVisible = true; // variable para mostrar u ocultar el cartel
 let resultadoJuego = ''; // para saber si ganaste o perdiste
 let mostrarMensajeFinal = false; // control para mostrar el mensaje final
 let golpeado = false; // variable para verificar si el enemigo fue golpeado
-//variables para las estrellas
 let lineXone = 0;
 let lineYone = 0;
 let sonidoAmbiente;
 let laser;
+let circulos = []; // Arreglo para almacenar los círculos del rastro
+
+// Clase para los círculos del rastro
+class Circulo {
+  constructor(x, y, tamano) {
+    this.x = x;
+    this.y = y;
+    this.tamano = tamano;
+    this.tiempoVida = 1000; // 1 segundo de vida
+    this.color = color(random(100, 255), random(100, 255), random(100, 255)); // Color aleatorio
+  }
+
+  actualizar() {
+    this.tiempoVida -= deltaTime; // Reduce el tiempo de vida
+  }
+
+  dibujar() {
+    if (this.tiempoVida > 0) {
+      noStroke();
+      fill(this.color);
+      ellipse(this.x, this.y, this.tamano);
+    }
+  }
+
+  estaMuerto() {
+    return this.tiempoVida <= 0; // Devuelve true si el círculo ya no está vivo
+  }
+}
+
 // cargamos las imágenes
 function preload() {
   nave = loadImage('/assets/nave1.png');
   enemigo = loadImage('/assets/nave2.png');
   punio = loadImage('/assets/golpe.png');
-  sonidoAmbiente = loadSound('/assets/sonidoAmbiente.mp3')
-  laser = loadSound('/assets/laser.mp3')
+  sonidoAmbiente = loadSound('/assets/sonidoAmbiente.mp3');
+  laser = loadSound('/assets/laser.mp3');
 }
 
 function setup() {
@@ -43,6 +71,25 @@ function setup() {
 
 function draw() {
   background(0);
+
+  // Agrega un nuevo círculo cuando el mouse se mueve y el juego está activo
+  if (juegoActivo && (mouseX !== pmouseX || mouseY !== pmouseY)) {
+    let tamano = random(5, 20); // Tamaño aleatorio
+    circulos.push(new Circulo(mouseX, mouseY, tamano));
+  }
+
+  // Actualiza y dibuja los círculos
+  for (let i = circulos.length - 1; i >= 0; i--) {
+    circulos[i].actualizar();
+    circulos[i].dibujar();
+
+    // Elimina los círculos que ya no están vivos
+    if (circulos[i].estaMuerto()) {
+      circulos.splice(i, 1);
+    }
+  }
+
+  // Resto del código del juego...
   stroke("white");
   strokeWeight(10);
   point(lineXone, lineYone);
@@ -55,10 +102,10 @@ function draw() {
     fill(255);
     textSize(48);
     textAlign(CENTER, CENTER);
-    text("Bienvenido a get the ship", width / 2, height / 3 + 30);
-    text("tenes 30 segundos para agarrar la nave 10 veces", width / 2, height / 3 + 120);
+    text("Bienvenido a tu mision", width / 2, height / 3 + 30);
+    text("Hace clic 10 veces en la nave enemiga para poder derrotarla", width / 2, height / 3 + 120);
     textSize(32);
-    text("clic para empezar", width / 2, height / 2 + 30);
+    text("Presiona en cualquier lugar para comenzar", width / 2, height / 2 + 30);
 
     return; // no sigue ejecutando el código después de mostrar el cartel
   }
@@ -70,6 +117,7 @@ function draw() {
   } else {
     sonidoAmbiente.stop();
   }
+
   // actualiza la posición del enemigo cada cierto tiempo
   if (millis() - lastChangeTime > changeInterval && juegoActivo) {
     enemigoX = random(windowWidth - enemigoWidth);
@@ -82,17 +130,19 @@ function draw() {
   image(nave, pmouseX, pmouseY, 120, 190);
 
   // muestro la cantidad de puntos
-  strokeWeight(1)
-  fill(255);
+  strokeWeight(1);
   textSize(32);
+  fill("pink");
+  rect(width - (width - 30), 27, 180, 50); // fondo para el tiempo
+  fill("white");
   textAlign(LEFT);
-  text("Puntos: " + puntos, 40, 40);
+  text("Golpes: " + puntos, 40, 50);
 
   // Muestro el tiempo restante
   textAlign(RIGHT);
   if (juegoActivo) {
     let tiempoRestante = tiempoLimite - (millis() - tiempoInicio);
-    strokeWeight(1)
+    strokeWeight(1);
     fill("pink");
     rect(width - 325, 30, 200, 50); // fondo para el tiempo
     fill("white");
@@ -117,7 +167,7 @@ function draw() {
   // si ya se alcanzaron los 10 puntos antes de que termine el tiempo, el jugador gana
   if (puntos >= 10 && juegoActivo) {
     juegoActivo = false;
-    resultadoJuego = 'ganaste';
+    resultadoJuego = 'GANASTE';
     storeItem('resultado', resultadoJuego);
     mostrarMensajeFinal = true;
   }
@@ -127,18 +177,18 @@ function draw() {
     fill(255);
     textSize(48);
     textAlign(CENTER, CENTER);
-    text(resultadoJuego + "!", width / 2, height / 3);
+    text(resultadoJuego + " !", width / 2, height / 3);
     textSize(32);
     text("¿Querés jugar de nuevo?", width / 2, height / 2);
     textSize(24);
-    text("Haz clic para continuar", width / 2, height / 1.5);
+    text("clic para continuar", width / 2, height / 1.5);
   }
 
   // si el enemigo fue golpeado, se muestra la imagen del puño
   if (golpeado) {
     image(punio, enemigoX, enemigoY, 200, 200);
-    golpeado = false; // reseteo el golpe para que no quede la imagen fija
-    laser.play()
+    golpeado = false; // reseteo el golpe para que no quede la imagen del puño visible
+    laser.play();
   }
 }
 
