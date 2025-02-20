@@ -1,4 +1,5 @@
 let nave; // variable para la imagen de la nave
+let disparo;
 let enemigo; // variable para la imagen del enemigo
 let punio; // variable para la imagen del golpe
 let enemigoX, enemigoY; // posición del enemigo
@@ -50,9 +51,10 @@ class Circulo {
 function preload() {
   nave = loadImage('/assets/nave1.png');
   enemigo = loadImage('/assets/nave2.png');
-  punio = loadImage('/assets/golpe.png');
+  punio = loadImage('/assets/golpe.gif');
   sonidoAmbiente = loadSound('/assets/sonidoAmbiente.mp3');
   laser = loadSound('/assets/laser.mp3');
+  disparo = loadImage('/assets/laser.png')
 }
 
 function setup() {
@@ -72,6 +74,8 @@ function setup() {
 function draw() {
   background(0);
 
+  cursor('/assets/laser.png',mouseX, mouseY, 10,10);
+
   // Agrega un nuevo círculo cuando el mouse se mueve y el juego está activo
   if (juegoActivo && (mouseX !== pmouseX || mouseY !== pmouseY)) {
     let tamano = random(5, 20); // Tamaño aleatorio
@@ -89,7 +93,7 @@ function draw() {
     }
   }
 
-  // Resto del código del juego...
+//estrellas
   stroke("white");
   strokeWeight(10);
   point(lineXone, lineYone);
@@ -156,7 +160,7 @@ function draw() {
     text("Tiempo: 0", width - 150, 55);
   }
 
-  // cuando se acaba el tiempo, revisamos si ganó o perdió
+  // cuando se acaba el tiempo, reviso si gano o perdio
   if (juegoActivo && millis() - tiempoInicio > tiempoLimite) {
     juegoActivo = false;
     resultadoJuego = puntos >= 10 ? 'ganaste' : 'perdiste';
@@ -186,7 +190,7 @@ function draw() {
 
   // si el enemigo fue golpeado, se muestra la imagen del puño
   if (golpeado) {
-    image(punio, enemigoX, enemigoY, 200, 200);
+      image(punio, enemigoX - 50, enemigoY - 50, 300, 300);
     golpeado = false; // reseteo el golpe para que no quede la imagen del puño visible
     laser.play();
   }
